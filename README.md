@@ -10,8 +10,41 @@ Advanced Food Industries (AFI) is a leading producer of high-quality food produc
 
 The AFI Orders Form is part of a larger Enterprise Resource Planning (ERP) system designed to streamline and enhance the company's operations. The ERP system integrates various business processes, including order management, inventory control, production planning, and financial management. By centralizing these functions, the ERP system helps AFI improve efficiency, reduce costs, and enhance decision-making capabilities.
 
+## Key Features
+
+### Order Creation and Modification:
+- Users can create new supply orders or modify existing ones.
+- The form includes fields for sales person, customer name, order date, time, and payment type.
+
+### Dynamic Form Elements:
+- The form dynamically adds rows for product details, allowing users to specify the product, quantity, unit, and comments for each item.
+- Users can add or remove rows as needed.
+
+### Searchable Dropdowns:
+- The application includes searchable dropdowns for selecting sales persons, customers, products, and units, enhancing user experience by allowing quick searches.
+
+### Preview Functionality:
+- Users can preview the order before submission, which displays all entered details in a formatted document.
+- The preview includes a serial number, date, time, payment type, and a detailed list of products.
+
+### PDF Generation:
+- Upon submission, the application generates a PDF of the order, which can be opened in a new tab for printing or saving.
+
+### Responsive Design:
+- The application is designed to be responsive, ensuring usability on various devices, including mobile.
+
+### Error Handling:
+- The form includes validation to ensure all required fields are filled before submission.
+
 ## Project Structure
 
+### Frontend:
+- **HTML/CSS/JavaScript**: The frontend is built using HTML for structure, CSS for styling, and JavaScript for interactivity.
+
+### Backend:
+- **Google Apps Script**: The backend logic is handled by Google Apps Script, which manages data fetching, form submission, and PDF generation.
+
+### Files:
 - **appsscript.json**: Configuration file for the Google Apps Script project.
 - **server/**: Directory containing server-side scripts:
   - `Helpers.js`
