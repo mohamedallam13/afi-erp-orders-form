@@ -1,0 +1,1844 @@
+<? const AFILogo = "https://drive.google.com/file/d/1uUnkpqwhDzH1tRp7cL9wK604LgSkrRWA/view?usp=drive_link" ?>
+
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AFI - أمر توريد</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-blue: #003366;
+      --border-color: #dddddd;
+      --success-color: #2ecc71;
+      --danger-color: #e74c3c;
+      --background-color: #f8f8f8;
+
+      /* Modification mode colors */
+      --mod-primary: #7b68ee;
+      /* Softer purple */
+      --mod-light: #f8f7fe;
+      /* Very light lavender, almost white */
+      --mod-border: #e0dcf5;
+      /* Subtle lavender border */
+      --mod-text: #6a5acd;
+      /* Slateblue - softer purple for text */
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Cairo', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--background-color);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    //////////////// TABS CONTAINER
+
+    .tabs-container {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem 2rem;
+      background: white;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 1.5rem;
+    }
+
+    .tabs-container {
+      transition: background-color 0.3s ease;
+    }
+
+    .tab-button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background: none;
+      color: #666;
+      cursor: pointer;
+      font-weight: 600;
+      position: relative;
+    }
+
+    .tab-button {
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .tab-button.active {
+      color: var(--primary-blue);
+    }
+
+    .tab-button.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--primary-blue);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Styles for the order selector */
+    .order-selector-section {
+      margin: 2rem 2rem;
+      /* Match form-content padding */
+      padding: 1.5rem;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .order-selector-container {
+      position: relative;
+      width: 100%;
+    }
+
+    .order-selector {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: white;
+    }
+
+    .order-selector:focus {
+      outline: none;
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+    }
+
+    /////////// MODIFICATIONS TAB
+
+    /* Add these to your existing CSS */
+    .tab-button,
+    .form-section,
+    .order-selector-section {
+      transition: all 0.3s ease;
+    }
+
+    /* Modification mode styles - subtle purple theme with variables */
+    /* Tab styling */
+    .modification-mode .tab-button[data-tab="modify-order"].active {
+      color: var(--mod-text);
+      font-weight: bold;
+    }
+
+    .modification-mode .tab-button[data-tab="modify-order"].active::after {
+      background: var(--mod-text);
+    }
+
+    /* Apply to ALL form sections including order selector */
+    .modification-mode .form-section,
+    .modification-mode .order-selector-section {
+      background-color: var(--mod-light);
+      border-color: var(--mod-border);
+    }
+
+    /* Apply to ALL section titles */
+    .modification-mode .section-title {
+      color: var(--mod-text);
+    }
+
+    /* Apply to the order selector specifically */
+    .modification-mode #orderSelector {
+      border-color: var(--mod-border);
+    }
+
+    //////////////// TABS CONTAINER
+
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .header {
+      background: var(--primary-blue);
+      color: white;
+      padding: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      order: 2;
+      /* Move logo to end (left in RTL) */
+      height: 90px;
+      /* Increased from 60px to 80px */
+      background: white;
+      padding: 8px;
+      border-radius: 8px;
+    }
+
+    .form-title {
+      font-size: 2rem;
+      font-weight: 600;
+    }
+
+    .form-content {
+      padding: 0 2rem 2rem 2rem;
+      /* Remove top padding since we have the order selector */
+    }
+
+    .form-section {
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border-color);
+      margin-bottom: 2rem;
+      /* Consistent spacing between sections */
+    }
+
+    .form-section {
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .order-selector-section,
+    .form-section {
+      background-color: #f8f9fa;
+      /* Light gray background */
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      /* Subtle shadow */
+    }
+
+    .order-selector-section {
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .section-title {
+      color: var(--primary-blue);
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      /* Consistent with other section titles */
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      font-weight: 600;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #333;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary-blue);
+      box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+    }
+
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+    }
+
+    .items-table th {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      text-align: right;
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+    }
+
+    .items-table td {
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      background: white;
+    }
+
+    .items-table input,
+    .items-table select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e8e8e8;
+      border-radius: 8px;
+      font-size: 1rem;
+      background: white;
+      text-align: center;
+    }
+
+    .items-table select {
+      text-align: right;
+      padding-right: 1.5rem;
+    }
+
+    .items-table .btn-danger {
+      padding: 0.5rem;
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+    }
+
+    .items-table td {
+      vertical-align: middle;
+      border: none;
+      padding: 0.5rem;
+    }
+
+    /* Remove number input spinners */
+    .items-table input[type="number"]::-webkit-inner-spin-button,
+    .items-table input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .items-table input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    .items-table input:disabled {
+      background-color: #f0f0f0;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-blue);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #004080;
+    }
+
+    .btn-danger {
+      background-color: var(--danger-color);
+      color: white;
+    }
+
+    .btn-add {
+      margin-top: 1rem;
+      background-color: #f8f9fa;
+      color: var(--primary-blue);
+      border: 1px solid var(--border-color);
+    }
+
+    /* Preview Styles */
+    .preview-container {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 100%;
+      height: 100vh;
+      background: white;
+      transition: transform 0.3s ease-in-out;
+      padding: 2rem;
+      overflow-y: auto;
+      z-index: 1000;
+    }
+
+    ///////
+
+    .preview-container.active {
+      transform: translateX(-100%);
+    }
+
+    .preview-document {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: white;
+      border: 1px solid #ddd;
+    }
+
+    .preview-header-container {
+      position: relative;
+      margin-bottom: 3rem;
+    }
+
+    .preview-header-logo {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 80px;
+    }
+
+    .preview-title-container {
+      text-align: center;
+      padding-top: 2rem;
+    }
+
+    .preview-title {
+      background: #000;
+      color: white;
+      padding: 8px 24px;
+      display: inline-block;
+    }
+
+    /////
+
+    .preview-document .document-header {
+      display: grid;
+      grid-template-columns: auto auto;
+      /* Two columns */
+      justify-content: center;
+      /* Center the content */
+      gap: 2rem;
+      margin-bottom: 3rem;
+      align-items: start;
+    }
+
+    .preview-document .document-header .logo {
+      height: 80px;
+      order: 2;
+      /* Move logo to second column */
+    }
+
+    .preview-document .black-title {
+      background: #000;
+      color: white;
+      padding: 8px 24px;
+      text-align: center;
+      font-weight: 600;
+      margin-top: 1rem;
+    }
+
+    .serial-top {
+      margin: 2rem 0;
+      text-align: right;
+    }
+
+    .document-title {
+      background: #000;
+      color: white;
+      padding: 8px 24px;
+      text-align: center;
+      font-weight: 600;
+      margin-top: 1.5rem;
+      /* Added to move title down */
+    }
+
+    .document-info {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px 20px;
+      margin-bottom: 1rem;
+    }
+
+    .payment-boxes {
+      display: flex;
+      gap: 2rem;
+      margin: 1rem 0;
+    }
+
+    .payment-box {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .box {
+      width: 20px;
+      height: 20px;
+      border: 1px solid #000;
+      display: inline-block;
+    }
+
+    .document-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+    }
+
+    .document-table th,
+    .document-table td {
+      border: 1px solid #000;
+      padding: 8px;
+      text-align: right;
+    }
+
+    .document-table th {
+      font-weight: 600;
+    }
+
+    ///// Comments
+
+    .form-textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .comment-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e8e8e8;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    /////////// Searchable box
+
+    .select-container {
+      position: relative;
+    }
+
+    .select-search-container {
+      position: relative;
+      margin-bottom: 8px;
+    }
+
+    .select-search-input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    .select-wrapper {
+      position: relative;
+    }
+
+    .filtered-select {
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .option-group {
+      font-weight: bold;
+      padding: 8px;
+      background: #f5f5f5;
+    }
+
+    //// SEARCH CSS
+
+    .select-container {
+      position: relative;
+    }
+
+    .searchable-select {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      /* Left padding for chevron */
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: white;
+      text-overflow: ellipsis;
+      /* Add ellipsis for overflow */
+      overflow: hidden;
+      /* Hide overflow */
+      white-space: nowrap;
+      /* Prevent wrapping */
+      padding-left: 30px;
+      /* Make sure there's enough space for the chevron */
+    }
+
+    .searchable-select,
+    .items-table .searchable-select {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      background: white;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      padding-left: 30px;
+    }
+
+    /* Make sure these styles also apply to table cells */
+    .items-table td .select-container {
+      position: relative;
+      width: 100%;
+    }
+
+    .select-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      max-height: 200px;
+      overflow-y: auto;
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 0 0 8px 8px;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .select-dropdown.show {
+      display: block;
+    }
+
+    .select-option {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+    }
+
+    .select-option:hover {
+      background: #f5f5f5;
+    }
+
+    .select-option mark {
+      background: #e3f2fd;
+      padding: 0;
+    }
+
+    .dropdown-arrow {
+      position: absolute;
+      left: 1rem;
+      /* Changed from right: 1rem */
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #666;
+    }
+
+    /* Make input backgrounds white for contrast */
+    input,
+    select,
+    textarea,
+    .searchable-select {
+      background-color: white !important;
+    }
+
+    ///// Loading
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+
+    .loading-content {
+      text-align: center;
+    }
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary-blue);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    .loading-text {
+      color: var(--primary-blue);
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    //// Responsiveness
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .form-content {
+        padding: 1rem;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-container {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="loadingScreen" class="loading-overlay">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <div class="loading-text" id="loadingText">جاري تحميل البيانات...</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <h1 class="form-title">أمر توريد</h1>
+      <img src="<?!= HELPERS.convertImageToDataUri(AFILogo) ?>" alt="AFI Logo" class="logo">
+    </div>
+
+    <div class="tabs-container">
+      <button class="tab-button active" data-tab="new-order">
+      <i class="fas fa-plus"></i> أمر توريد جديد
+    </button>
+      <button class="tab-button" data-tab="modify-order">
+      <i class="fas fa-edit"></i> تعديل / إستكمال أمر توريد
+    </button>
+    </div>
+
+    <!-- Order selector section - shown/hidden based on tab -->
+    <div class="order-selector-section" style="display: none;">
+      <h2 class="section-title">اختر الأمر المراد تعديله</h2>
+      <div class="select-container">
+        <input type="text" class="searchable-select" id="orderSelector" placeholder="اختر رقم الأمر" required>
+        <i class="fas fa-chevron-down dropdown-arrow"></i>
+        <div class="select-dropdown"></div>
+      </div>
+    </div>
+
+    <!-- NEW / MODIFY ORDER -->
+    <div id="new-order" class="tab-content active">
+      <form id="orderForm" class="form-content">
+        <div class="form-section">
+          <h2 class="section-title">معلومات الطلب</h2>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="salesPerson">مسؤول البيع:</label>
+              <div class="select-container">
+                <input type="text" class="searchable-select salesPerson" id="salesPerson" placeholder="اختر مسؤول البيع" required>
+                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                <div class="select-dropdown"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="orderDate">التاريخ:</label>
+              <input type="date" id="orderDate">
+            </div>
+            <div class="form-group">
+              <label for="orderTime">الوقت:</label>
+              <input type="time" id="orderTime">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="paymentType">نظام التعامل:</label>
+              <div class="select-container">
+                <select id="paymentType" required>
+                  <option value="">اختر نظام التعامل</option>
+                  <option value="cash">كاش</option>
+                  <option value="check">شيك</option>
+                  <option value="credit">آجل</option>
+              </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="customerName">اسم العميل:</label>
+              <div class="select-container">
+                <input type="text" class="searchable-select customerName" id="customerName" placeholder="اختر العميل" required>
+                <i class="fas fa-chevron-down dropdown-arrow"></i>
+                <div class="select-dropdown"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2 class="section-title">تفاصيل المنتجات</h2>
+          <div class="form-group">
+            <label for="generalComments">ملاحظات عامة:</label>
+            <textarea id="generalComments" rows="3" class="form-textarea"
+                      placeholder="أضف أي ملاحظات عامة هنا"></textarea>
+          </div>
+
+          <div class="items-section">
+            <table class="items-table" id="itemsTable">
+              <thead>
+                <tr>
+                  <th style="width: 35%;">الصنف</th>
+                  <th style="width: 15%;">الكمية</th>
+                  <th style="width: 15%;">الوحدة</th>
+                  <th style="width: 25%;">ملاحظات</th>
+                  <th style="width: 10%;"></th>
+                </tr>
+              </thead>
+              <tbody id="itemsTableBody">
+              </tbody>
+            </table>
+
+            <button type="button" class="btn-add-row" onclick="addNewRow()">
+                        <i class="fas fa-plus"></i>
+                        إضافة صنف جديد
+                    </button>
+          </div>
+
+          <style>
+            .btn-add-row {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              color: var(--primary-blue);
+              background: none;
+              border: 1px solid #ddd;
+              padding: 8px 16px;
+              border-radius: 4px;
+              cursor: pointer;
+              margin-top: 16px;
+              font-size: 0.9rem;
+            }
+
+            .btn-add-row:hover {
+              background: #f8f9fa;
+            }
+
+            .items-table td:last-child {
+              width: 40px;
+              padding: 0.5rem;
+            }
+
+            .btn-remove {
+              width: 32px;
+              height: 32px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border-radius: 50%;
+              border: none;
+              background: #dc3545;
+              color: white;
+              cursor: pointer;
+            }
+
+            .btn-remove:hover {
+              background: #c82333;
+            }
+          </style>
+        </div>
+
+        <div class="form-row">
+          <button type="button" class="btn btn-primary" onclick="showPreview()">
+                    <i class="fas fa-eye"></i>
+                    معاينة الطلب
+        </button>
+        </div>
+      </form>
+    </div>
+    <!-- NEW ORDER END -->
+
+  </div> <!-- ALL CONTAINER END -->
+
+  <div class="preview-container" id="previewContainer">
+    <div class="preview-document">
+      <div class="preview-header-container">
+        <img src="<?!= HELPERS.convertImageToDataUri(AFILogo) ?>" alt="AFI Logo" class="preview-header-logo">
+        <div class="preview-title-container">
+          <div class="preview-title">
+            أمر توريد
+          </div>
+        </div>
+      </div>
+
+      <div id="previewContent"></div>
+
+      <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+        <button type="button" class="btn btn-primary" onclick="submitOrder()">
+                    <i class="fas fa-check"></i>
+                    تأكيد وإرسال
+                </button>
+        <button type="button" class="btn btn-danger" onclick="hidePreview()">
+                    <i class="fas fa-times"></i>
+                    رجوع
+                </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /// Initialize Tabs
+
+      function initializeTabs() {
+          const tabButtons = document.querySelectorAll('.tab-button');
+          const tabContents = document.querySelectorAll('.tab-content');
+          const orderSelectorSection = document.querySelector('.order-selector-section');
+           const container = document.querySelector('.container'); // Get the main container
+          
+          console.log('Initializing tabs:', tabButtons.length, 'buttons found'); // Debug log
+
+          tabButtons.forEach(button => {
+              button.addEventListener('click', () => {
+                  console.log('Tab clicked:', button.dataset.tab); // Debug log
+                  
+                  // Remove active class from all tabs and contents
+                  tabButtons.forEach(btn => btn.classList.remove('active'));
+                  
+                  // Add active class to clicked tab
+                  button.classList.add('active');
+                  
+                  // Show/hide order selector based on tab
+                  if (button.dataset.tab === 'modify-order') {
+                      orderSelectorSection.style.display = 'block';
+                      isModifyingOrder = true;
+                      container.classList.add('modification-mode'); // Add modification mode class
+                  } else {
+                      orderSelectorSection.style.display = 'none';
+                      isModifyingOrder = false;
+                      currentOrderId = null;
+                      container.classList.remove('modification-mode'); // Remove modification mode class
+                  }
+
+                  // Reset form
+                  resetForm();
+                  
+                  console.log('Order selector visibility:', orderSelectorSection.style.display);
+                  console.log('Is modifying:', isModifyingOrder);
+              });
+          });
+      }
+
+
+      /// SearchableSelect start
+
+      function initializeSearchableSelect(input, options, type) {
+          if (!input || !options || !Array.isArray(options)) {
+              console.error('Invalid input or options for searchable select:', { input, options, type });
+              return;
+          }
+
+          const container = input.closest('.select-container');
+          if (!container) {
+              console.error('Could not find container for searchable select');
+              return;
+          }
+
+          const dropdown = container.querySelector('.select-dropdown');
+          if (!dropdown) {
+              console.error('Could not find dropdown for searchable select');
+              return;
+          }
+
+
+        // Add input event listener to remove red border
+          // Add input event listener to remove red border
+          input.addEventListener('input', function() {
+              this.style.borderColor = '';
+          });
+
+        function showOptions(filterTerm = '') {
+            const filtered = filterTerm ? 
+                options.filter(opt => {
+                    if (!opt) return false;
+                    const searchText = type === 'product' ? opt.product_name_ar :
+                                      type === 'unit' ? opt.unit_name_ar :
+                                      opt.name;
+                    return searchText && searchText.toLowerCase().includes(filterTerm.toLowerCase());
+                }) : 
+                options;
+
+            dropdown.innerHTML = filtered.map(option => {
+                try {
+                    if (!option) return '';
+
+                    
+                    let valueObj;
+                    let displayName;
+
+                    switch(type) {
+                        case 'sales':
+                            valueObj = {
+                                person_id: option.person_id,
+                                name: option.name
+                            };
+                            displayName = option.name;
+                            break;
+
+                        case 'client':
+                            valueObj = {
+                                client_id: option.client_id,
+                                branch_id: option.branch_id,
+                                area_id: option.area_id,
+                                name: option.name
+                            };
+                            displayName = option.name;
+                            break;
+
+                        case 'product':
+                            valueObj = {
+                                program_store_code: option.program_store_code,
+                                product_id: option.product_id,
+                                name: option.product_name_ar
+                            };
+                            displayName = option.product_name_ar;
+                            break;
+
+                        case 'unit':
+                            valueObj = {
+                                unit_id: option.unit_id,
+                                name: option.unit_name_ar
+                            };
+                            displayName = option.unit_name_ar;
+                            break;
+
+                          case 'order':
+                            valueObj = {
+                                dbOrderId: option.dbOrderId,
+                                name: option.name
+                            };
+                            displayName = option.name;
+                            break;
+                    }
+
+                    if (valueObj && displayName) {
+                        const highlighted = highlightMatch(displayName, filterTerm);
+                        return `
+                            <div class="select-option" data-value='${JSON.stringify(valueObj)}'>
+                                ${highlighted}
+                            </div>
+                        `;
+                    }
+                    return '';
+                } catch (err) {
+                    console.error('Error creating option:', err, option);
+                    return '';
+                }
+            }).join('');
+
+            attachOptionClickHandlers(dropdown);
+            dropdown.classList.add('show');
+        }
+
+        // Show dropdown on input focus
+        input.addEventListener('focus', () => {
+            showOptions(input.value);
+        });
+
+        // Filter options on input
+        input.addEventListener('input', (e) => {
+            showOptions(e.target.value);
+        });
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!container.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Show all options when clicking the arrow
+        const dropdownArrow = container.querySelector('.dropdown-arrow');
+        if (dropdownArrow) {
+            dropdownArrow.addEventListener('click', () => {
+                if (!dropdown.classList.contains('show')) {
+                    showOptions();
+                } else {
+                    dropdown.classList.remove('show');
+                }
+            });
+        }
+      }
+
+function attachOptionClickHandlers(dropdown) {
+    dropdown.querySelectorAll('.select-option').forEach(option => {
+        option.addEventListener('click', () => {
+            const input = option.closest('.select-container').querySelector('input');
+            const data = JSON.parse(option.dataset.value);
+            input.value = data.name;
+            input.dataset.value = option.dataset.value;
+            input.style.borderColor = ''; // Clear any error styling
+            dropdown.classList.remove('show');
+
+            // If this is the order selector, handle order selection
+            if (input.id === 'orderSelector') {
+                // console.log("Order selected:", data.dbOrderId);
+                if(data.dbOrderId) {
+                    const selectedOrder = orders.find(o => o.dbOrderId === data.dbOrderId);
+                    // console.log("Found order:", selectedOrder);
+                    if(selectedOrder) {
+                        populateModificationForm(selectedOrder);
+                    }
+                }
+            }
+        });
+    });
+}
+
+      function highlightMatch(text, searchTerm) {
+          if (!searchTerm) return text;
+          const regex = new RegExp(`(${searchTerm})`, 'gi');
+          return text.replace(regex, '<mark>$1</mark>');
+      }
+
+      /// SearchableSelect end
+
+      /// Initialize
+
+      window.onload = function(){
+          initializeForm()
+          initializeTabs();  // Add this line
+          console.log('Window loaded, tabs initialized'); // Debug log
+        }
+
+      ///// Loading
+
+        function toggleLoading(show, text) {
+            if(text){
+               const loadingTextHTML = document.getElementById('loadingText');
+               loadingTextHTML.innerHTML = text
+            }
+            const loadingScreen = document.getElementById('loadingScreen');
+            loadingScreen.style.display = show ? 'flex' : 'none';
+        }
+
+        // Initialize with current date and time
+        let now = new Date();
+        let currentDate = now.toISOString().split('T')[0];
+        let currentTime = now.toTimeString().split(' ')[0];
+
+        function initializeForm(){
+              toggleLoading(true); // Show loading screen
+              google.script.run
+                  .withSuccessHandler(populateForm)
+                  .withFailureHandler(handleError)
+                  .fetchLists();
+        }
+            
+          function handleError(error) {
+            console.error('Error fetching data:', error);
+            alert('حدث خطأ أثناء تحميل البيانات. الرجاء المحاولة مرة أخرى.');
+            toggleLoading(false);
+          }
+
+
+        ////// GLOBALS 
+
+        // Data lists with IDs
+        
+        let products 
+
+        let clients
+
+        let salesPersons 
+
+        let units 
+
+        let orders
+
+        let isModifyingOrder = false;
+
+        let currentSerialNum
+        let currentSerial = ""
+        let generalComments = '';  // Add this
+
+        let groupedProducts = {}
+        let groupedClients= {}
+
+        let modifiedOrderId = null
+        let orderChangeVersion
+
+        function populateForm(listsObjString) {
+            toggleLoading(false);
+            
+            const listsObj = JSON.parse(listsObjString);
+            const {ordersArray, clientsArray, asSalesArray, productsArray, unitsArray, receviedOrdersCounter} = listsObj;
+
+            orders = ordersArray || []
+            products = productsArray || [];
+            clients = clientsArray || [];
+            salesPersons = asSalesArray || [];
+            units = unitsArray || [];
+            currentSerialNum = parseInt(receviedOrdersCounter || '0');
+
+            createSerial();
+
+            console.log(currentSerial)
+
+
+          // Initialize all sales person dropdowns
+          if (salesPersons && salesPersons.length > 0) {
+              document.querySelectorAll('.salesPerson').forEach(select => {
+                  initializeSearchableSelect(select, salesPersons, 'sales');
+              });
+          }
+
+          // Initialize all customer dropdowns
+          if (clients && clients.length > 0) {
+              document.querySelectorAll('.customerName').forEach(select => {
+                  initializeSearchableSelect(select, clients, 'client');
+              });
+          }
+
+            const nonDelieveredOrders = orders.filter(order=>{return order.status != "outForDelivery"}).reverse()
+            if(nonDelieveredOrders.length >0){
+                initializeSearchableSelect(
+                    document.querySelector('#orderSelector'),
+                    nonDelieveredOrders.map(order => ({
+                        dbOrderId: order.dbOrderId,
+                        name: `${order.id} - ${order.client} - ${order.receiveDate}`
+                    })),
+                    'order'
+                );
+            }
+
+            // Set default date and time in both forms
+            document.querySelectorAll('input[type="date"]').forEach(dateField => {
+                dateField.value = currentDate;
+            });
+            document.querySelectorAll('input[type="time"]').forEach(timeField => {
+                timeField.value = currentTime;
+            });
+
+            // Add first row to both forms
+            document.querySelectorAll('#itemsTableBody').forEach(tbody => {
+                addNewRow(tbody);
+            });
+        }
+
+        function createSerial(){
+            const year = new Date().getFullYear();
+            const paddedCounter = String(currentSerialNum).padStart(9, '0');
+            currentSerial = `${paddedCounter}-${year}`;
+        }
+
+        ///// Searchable Dropdown
+
+        ////////////// Add Rows Start
+
+       function addNewRow(tbody) {
+            // If no tbody provided, use the default one
+            tbody = tbody || document.getElementById('itemsTableBody');
+            
+            const row = document.createElement('tr');
+            
+            row.innerHTML = `
+                <td style="width: 35%;">
+                    <div class="select-container">
+                        <input type="text" class="searchable-select product-select" placeholder="اختر الصنف" required>
+                        <i class="fas fa-chevron-down dropdown-arrow"></i>
+                        <div class="select-dropdown"></div>
+                    </div>
+                </td>
+                <td style="width: 15%;">
+                    <input type="number" class="quantity-input" min="0" placeholder="الكمية" required>
+                </td>
+                <td style="width: 15%;">
+                    <div class="select-container">
+                        <input type="text" class="searchable-select unit-select" placeholder="اختر الوحدة" required>
+                        <i class="fas fa-chevron-down dropdown-arrow"></i>
+                        <div class="select-dropdown"></div>
+                    </div>
+                </td>
+                <td style="width: 25%;">
+                    <input type="text" class="comment-input" placeholder="ملاحظات">
+                </td>
+                <td style="width: 10%;">
+                    <button type="button" class="btn btn-danger" onclick="removeRow(this)">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            `;
+            
+            tbody.appendChild(row);
+            
+            // Initialize searchable selects for products and units
+            if (products && products.length > 0) {
+                initializeSearchableSelect(
+                    row.querySelector('.product-select'),
+                    products,
+                    'product'
+                );
+            }
+
+            if (units && units.length > 0) {
+                initializeSearchableSelect(
+                    row.querySelector('.unit-select'),
+                    units,
+                    'unit'
+                );
+            }
+
+            updateRemoveButtons();
+            
+            return row;  // Return the created row
+        }
+
+        function removeRow(button) {
+            const tbody = document.getElementById('itemsTableBody');
+            if (tbody.children.length > 1) {
+                button.closest('tr').remove();
+                updateRemoveButtons();
+            }
+        }
+
+        function updateRemoveButtons() {
+            const tbody = document.getElementById('itemsTableBody');
+            const buttons = tbody.getElementsByClassName('btn-danger');
+            
+            Array.from(buttons).forEach(button => {
+                button.style.display = tbody.children.length === 1 ? 'none' : '';
+            });
+        }
+
+        function handleQuantityInput(input, otherType) {
+            const row = input.closest('tr');
+            const otherInput = row.querySelector(`.${otherType}-input`);
+            
+            if (input.value) {
+                otherInput.disabled = true;
+                otherInput.value = '';
+            } else {
+                otherInput.disabled = false;
+            }
+        }
+
+        ////////////// Add Rows End
+
+        ////////////// Populate Modifications Start
+
+        function populateModificationForm(order) {
+            console.log("Starting to populate form with order:", order);
+            currentSerial = order.id
+            modifiedOrderId = order.dbOrderId
+            orderChangeVersion = order.orderChangeVersion? order.orderChangeVersion + 1 : 2 
+            console.log(currentSerial)
+            console.log(orderChangeVersion)
+            console.log(modifiedOrderId)
+
+            const form = document.getElementById('orderForm');
+            if (!form) {
+                console.error("Form not found!");
+                return;
+            }
+
+            try {
+                // Sales person
+                const salesPersonInput = form.querySelector('.salesPerson');
+                if (!salesPersonInput) {
+                    console.error("Sales person input not found");
+                    return;
+                }
+                salesPersonInput.value = order.salesPerson;
+                salesPersonInput.dataset.value = JSON.stringify({
+                    name: order.salesPerson
+                });
+
+                // Customer
+                const customerInput = form.querySelector('.customerName');
+                if (!customerInput) {
+                    console.error("Customer input not found");
+                    return;
+                }
+                customerInput.value = order.client;
+                customerInput.dataset.value = JSON.stringify({
+                    name: order.client,
+                    area: order.area
+                });
+
+                // Payment Type
+                const paymentInput = form.querySelector('#paymentType');
+                if (!paymentInput) {
+                    console.error("Payment type input not found");
+                    return;
+                }
+                paymentInput.value = order.paymentType;
+
+
+                // Clear existing items
+                const tbody = document.getElementById('itemsTableBody');
+                tbody.innerHTML = '';
+
+
+                // Populate items
+                order.items.forEach(item => {
+                    const row = addNewRow(tbody);
+                    
+                    // Populate product
+                    const productInput = row.querySelector('.product-select');
+                    productInput.value = item.product_barcode? item.name + "--" + item.product_barcode : item.name;
+                    productInput.dataset.value = JSON.stringify({
+                        name: item.product_barcode? item.name + "--" + item.product_barcode : item.name,
+                        product_id: item.product_id,
+                        // program_item_code: item.program_item_code
+                        program_store_code: item.program_store_code
+                    });
+
+                    // Populate quantity
+                    row.querySelector('.quantity-input').value = item.quantity;
+                    // Populate unit
+                    const unitInput = row.querySelector('.unit-select');
+                    unitInput.value = item.unit;
+                    unitInput.dataset.value = JSON.stringify({
+                        name: item.unit,
+                        unit_id: item.unit_id
+                        // program_unit_code: item.program_unit_code
+                        // program_unit_code: item.program_unit_code
+                    });
+
+                    // Populate comment
+                    row.querySelector('.comment-input').value = item.itemComment || '';
+
+                });
+
+                updateRemoveButtons(tbody);
+
+            } catch (error) {
+                console.error("Error in populateModificationForm:", error);
+            }
+        }
+
+        ////////////// Populate Modifications End
+
+
+function showPreview() {
+    if (!validateForm()) return;
+
+    const formData = {
+        orderSerial: currentSerial,
+        salesPerson: JSON.parse(document.querySelector('#salesPerson').dataset.value || '{}'),
+        salesPersonName: JSON.parse(document.querySelector('#salesPerson').dataset.value || '{}').name || '',
+        customerName: JSON.parse(document.querySelector('#customerName').dataset.value || '{}'),
+        customerNameString: JSON.parse(document.querySelector('#customerName').dataset.value || '{}').name || '',
+        date: document.getElementById('orderDate')?.value || currentDate,
+        time: document.getElementById('orderTime')?.value || currentTime,
+        paymentType: document.getElementById('paymentType').value,
+        generalComments: document.getElementById('generalComments')?.value || '',
+        isModification: isModifyingOrder,
+        modificationVersion: isModifyingOrder ? orderChangeVersion : null,
+        items: Array.from(document.getElementById('itemsTableBody').children).map(row => {
+            const productInput = row.querySelector('.product-select');
+            const unitInput = row.querySelector('.unit-select');
+            
+            return {
+                product: JSON.parse(productInput.dataset.value || '{}'),
+                productName: JSON.parse(productInput.dataset.value || '{}').name || '',
+                quantity: row.querySelector('.quantity-input').value || '-',
+                unit: JSON.parse(unitInput.dataset.value || '{}').name || '',
+                comment: row.querySelector('.comment-input').value || ''
+            };
+        })
+    };
+
+    const previewContent = document.getElementById('previewContent');
+    
+    let previewHTML = `
+        <div class="serial-top">
+            <div class="details-label">المسلسل:</div>
+            <div>${formData.orderSerial}</div>`;
+    
+    // Add modification version info if this is a modification
+    if (formData.isModification && formData.modificationVersion) {
+        previewHTML += `
+            <div class="details-label" style="margin-top: 10px; color: var(--primary-blue);">
+                <strong>نسخة رقم:</strong>
+            </div>
+            <div style="font-weight: bold; color: var(--primary-blue);">
+                ${formData.modificationVersion}
+            </div>`;
+    }
+
+    previewHTML += `
+        </div>
+
+        <div class="details-section">
+            <div class="details-label">التاريخ:</div>
+            <div>${formData.date}</div>
+
+            <div class="details-label">الساعة:</div>
+            <div>${formData.time}</div>
+
+            <div class="details-label">نظام التعامل:</div>
+            <div>
+                <div class="payment-boxes">
+                    <div class="payment-box">
+                        <div class="box" style="background: ${formData.paymentType === 'cash' ? '#000' : 'white'}"></div>
+                        <span>كاش</span>
+                    </div>
+                    <div class="payment-box">
+                        <div class="box" style="background: ${formData.paymentType === 'check' ? '#000' : 'white'}"></div>
+                        <span>شيك</span>
+                    </div>
+                    <div class="payment-box">
+                        <div class="box" style="background: ${formData.paymentType === 'credit' ? '#000' : 'white'}"></div>
+                        <span>آجل</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="details-label">مسؤول البيع:</div>
+            <div>${formData.salesPersonName}</div>
+
+            <div class="details-label">اسم العميل:</div>
+            <div>${formData.customerNameString}</div>
+        </div>
+
+        <div style="margin-top: 1rem; text-align: center; font-weight: 600;">
+            بيان أمر التوريد
+        </div>
+
+        ${formData.generalComments ? `
+        <div style="margin-top: 1rem;">
+            <div class="details-label">ملاحظات عامة:</div>
+            <div>${formData.generalComments}</div>
+        </div>
+        ` : ''}
+
+        <table class="document-table">
+            <thead>
+                <tr>
+                    <th>م</th>
+                    <th>الصنف</th>
+                    <th>الكمية</th>
+                    <th>الوحدة</th>
+                    <th>ملاحظات</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${formData.items.map((item, index) => `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${item.productName}</td>
+                        <td>${item.quantity}</td>
+                        <td>${item.unit}</td>
+                        <td>${item.comment || ''}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+
+    previewContent.innerHTML = previewHTML;
+    document.getElementById('previewContainer').classList.add('active');
+}
+
+        function hidePreview() {
+            document.getElementById('previewContainer').classList.remove('active');
+        }
+
+        function validateForm() {
+            const form = document.getElementById('orderForm');
+            const requiredInputs = form.querySelectorAll('[required]');
+            let isValid = true;
+
+            // Check if we're in modification mode and validate order selection
+            if (isModifyingOrder) {
+                const orderSelector = document.getElementById('orderSelector');
+                if (!orderSelector || !orderSelector.dataset.value) {
+                    if (orderSelector) {
+                        orderSelector.style.borderColor = 'var(--danger-color)';
+                        orderSelector.addEventListener('input', () => orderSelector.style.borderColor = '');
+                    }
+                    alert('الرجاء اختيار رقم الأمر المراد تعديله');
+                    return false;
+                }
+            }
+
+            requiredInputs.forEach(input => {
+                if (input.classList.contains('searchable-select')) {
+                    if (!input.dataset.value) {
+                        input.style.borderColor = 'var(--danger-color)';
+                        input.addEventListener('input', () => input.style.borderColor = '');
+                        isValid = false;
+                    }
+                } else if (!input.value.trim()) {
+                    input.style.borderColor = 'var(--danger-color)';
+                    input.addEventListener('input', () => input.style.borderColor = '');
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                alert('الرجاء ملء جميع الحقول المطلوبة');
+                return false;
+            }
+
+          // Validate quantities in each row
+          const rows = document.getElementById('itemsTableBody').children;
+          for (let row of rows) {
+              const quantityInput = row.querySelector('.quantity-input');
+              const productInput = row.querySelector('.product-select');
+              const unitInput = row.querySelector('.unit-select');
+              
+              if (!quantityInput.value || 
+                  quantityInput.value <= 0 || 
+                  !productInput.dataset.value ||
+                  !unitInput.dataset.value) {
+                  
+                  if (!quantityInput.value || quantityInput.value <= 0) {
+                      quantityInput.style.borderColor = 'var(--danger-color)';
+                      quantityInput.addEventListener('input', () => quantityInput.style.borderColor = '');
+                  }
+                  if (!productInput.dataset.value) {
+                      productInput.style.borderColor = 'var(--danger-color)';
+                      productInput.addEventListener('input', () => productInput.style.borderColor = '');
+                  }
+                  if (!unitInput.dataset.value) {
+                      unitInput.style.borderColor = 'var(--danger-color)';
+                      unitInput.addEventListener('input', () => unitInput.style.borderColor = '');
+                  }
+                  
+                  alert('يجب إدخال الصنف والكمية والوحدة لكل صف');
+                  return false;
+              }
+          }
+
+          return isValid;
+      }
+
+        function submitOrder() {
+            if (!validateForm()) return;
+
+            const formData = {
+                orderSerial: currentSerial,
+                order_id: modifiedOrderId,
+                orderDate: document.getElementById('orderDate')?.value || currentDate,
+                orderTime: document.getElementById('orderTime')?.value || currentTime,
+                salesPersonData: JSON.parse(document.querySelector('#salesPerson').dataset.value || '{}'),
+                paymentType: document.getElementById('paymentType').value,
+                clientData: JSON.parse(document.querySelector('#customerName').dataset.value || '{}'),
+                generalComments: document.getElementById('generalComments')?.value || '',
+                order_comment: document.getElementById('generalComments')?.value || '',
+                isModification: isModifyingOrder,
+                modificationVersion: isModifyingOrder ? orderChangeVersion : null,
+                items: Array.from(document.getElementById('itemsTableBody').children).map(row => {
+                    const productInput = row.querySelector('.product-select');
+                    const unitInput = row.querySelector('.unit-select');
+                    
+                    return {
+                        productData: JSON.parse(productInput.dataset.value || '{}'),
+                        quantity: row.querySelector('.quantity-input').value || '0',
+                        unit: JSON.parse(unitInput.dataset.value || '{}'),
+                        item_comment: row.querySelector('.comment-input').value || ''
+                    };
+                })
+            };
+
+            console.log(formData)
+
+            toggleLoading(true, "جاري إرسال الأمر...");
+
+            if(isModifyingOrder){
+           // Call Google Apps Script web app with PDF generation
+            google.script.run
+                .withSuccessHandler(function(pdfUrl) {
+                    toggleLoading(false, "جاري تحميل البيانات...");
+                    console.log(pdfUrl)
+                    if (pdfUrl) {
+                        // Open PDF in new tab
+                          window.open(pdfUrl, '_blank');
+                        }
+                        modifyVersionNumber()
+                        modifiedOrderId = null
+                        // currentSerialNum = currentSerialNum + 1
+                        createSerial()
+                        onSubmitSuccess();
+                   
+                })
+                .withFailureHandler(function(error) {
+                    toggleLoading(false, "جاري تحميل البيانات...");
+                    onSubmitFailure(error);
+                })
+                .modifyOrder(formData);
+            }else{
+           // Call Google Apps Script web app with PDF generation
+            google.script.run
+                .withSuccessHandler(function(pdfURLString) {
+                    toggleLoading(false, "جاري تحميل البيانات...");
+                    const pdfUrlArray = JSON.parse(pdfURLString)
+                    console.log(pdfUrlArray)
+                    if (pdfUrlArray && pdfUrlArray.length > 0) {
+                      pdfUrlArray.forEach(pdfUrl=>{
+                          window.open(pdfUrl, '_blank');
+                      })
+                        // Open PDF in new tab
+  
+                        currentSerialNum = currentSerialNum + 1
+                        createSerial()
+                        onSubmitSuccess();
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    toggleLoading(false, "جاري تحميل البيانات...");
+                    onSubmitFailure(error);
+                })
+                .submitForm(formData);
+            }
+
+ 
+        }
+
+        function modifyVersionNumber(){
+            const index = orders.findIndex(order => order.dbOrderId === modifiedOrderId);
+            if (index !== -1) {
+              orders[index].orderChangeVersion = orderChangeVersion;
+            }
+        }
+
+        function onSubmitSuccess(response) {
+            alert('تم إرسال الطلب بنجاح!');
+            hidePreview();
+            resetTabs()
+            resetForm();
+        }
+
+        function resetTabs(){
+            const newOrderTabButton = document.querySelector('.tab-button[data-tab="new-order"]');
+            newOrderTabButton.click()
+        }
+
+        function onSubmitFailure(error) {
+            alert('حدث خطأ أثناء إرسال الطلب. الرجاء المحاولة مرة أخرى.');
+            console.error('Submit error:', error);
+        }
+
+        function resetForm() {
+            document.getElementById('orderForm').reset();
+            const tbody = document.getElementById('itemsTableBody');
+            tbody.innerHTML = '';
+            resetTime();
+            
+            // Reset order selector if we're in modify mode
+            if (isModifyingOrder) {
+                const orderSelector = document.getElementById('orderSelector');
+                if (orderSelector) {
+                    orderSelector.value = '';
+                    orderSelector.dataset.value = '';
+                }
+              currentSerial = null
+            }else{
+              createSerial()
+            }
+
+            console.log(currentSerial)
+
+            // Reset just the currentOrderId
+       
+            
+            // Reset any error styling
+            document.querySelectorAll('.searchable-select').forEach(select => {
+                select.style.borderColor = '';
+            });
+            
+            addNewRow();
+        }
+
+        // function resetForm() {
+        //     document.getElementById('orderForm').reset();
+        //     const tbody = document.getElementById('itemsTableBody');
+        //     tbody.innerHTML = '';
+        //     resetTime()
+        //     addNewRow();
+        // }
+
+        function resetTime(){
+            now = new Date();
+            currentDate = now.toISOString().split('T')[0];
+            currentTime = now.toTimeString().split(' ')[0];
+            const dateField = document.getElementById('orderDate');
+            const timeField = document.getElementById('orderTime');
+            if (dateField) dateField.value = currentDate;
+            if (timeField) timeField.value = currentTime;
+        }
+
+        // Handle touch events for preview swipe
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        document.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, false);
+
+        document.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+
+        function handleSwipe() {
+            const swipeThreshold = 100;
+            const diff = touchStartX - touchEndX;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                if (diff > 0) { // Swipe left
+                    showPreview();
+                } else { // Swipe right
+                    hidePreview();
+                }
+            }
+        }
+
+
+  ////////// UTILITIES
+
+      function groupArrayByKey(array, key) {
+        return array.reduce((groups, item) => {
+            const group = item[key] || 'أخرى';
+            groups[group] = groups[group] || [];
+            groups[group].push(item);
+            return groups;
+        }, {});
+    }
+
+  </script>
+</body>
+
+</html>
