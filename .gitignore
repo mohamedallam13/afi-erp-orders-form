@@ -1,3 +1,4 @@
 # Ignore Google Apps Script and clasp configuration files
 appsscript.json
 clasp.json 
+.clasp.json
